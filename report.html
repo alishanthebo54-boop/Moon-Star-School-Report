@@ -29,15 +29,20 @@ body{
     border-radius:12px;
 }
 
-h1,h2,h3{
-    text-align:center;
-}
-
 .school{
     text-align:center;
     font-size:24px;
     font-weight:bold;
     margin-bottom:10px;
+}
+
+h1,h2,h3{
+    text-align:center;
+}
+
+.toolbar{
+    text-align:center;
+    margin-bottom:20px;
 }
 
 button{
@@ -51,21 +56,8 @@ button{
     cursor:pointer;
 }
 
-button:active{
-    transform:scale(.97);
-}
-
 .pdfButton{
     background:#198754;
-}
-
-.backButton{
-    background:#555;
-}
-
-.toolbar{
-    text-align:center;
-    margin-bottom:20px;
 }
 
 table{
@@ -87,19 +79,6 @@ th{
 .loading{
     text-align:center;
     padding:30px;
-    font-size:18px;
-}
-
-.success{
-    text-align:center;
-    color:#198754;
-    font-weight:bold;
-    margin:10px;
-}
-
-.error{
-    color:#b00020;
-    text-align:center;
 }
 
 @media(max-width:600px){
@@ -118,46 +97,22 @@ th{
 
     button{
         width:90%;
-        margin:5px auto;
         display:block;
+        margin:6px auto;
     }
 
     table{
-        font-size:13px;
+        font-size:12px;
     }
 
     th,td{
-        padding:6px 4px;
-    }
-
-}
-
-@media print{
-
-    body{
-        background:white;
-        padding:0;
-    }
-
-    .container{
-        max-width:none;
-        padding:10px;
-        border-radius:0;
-    }
-
-    .toolbar{
-        display:none;
-    }
-
-    button{
-        display:none;
+        padding:6px 3px;
     }
 
 }
 
 </style>
 
-<!-- PDF LIBRARY -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
@@ -168,46 +123,45 @@ th{
 
 <div class="container">
 
-    <div class="school">
-        Moon Star Public High School Khanwahan
-    </div>
+<div class="school">
+Moon Star Public High School Khanwahan
+</div>
 
-    <h1 id="title">
-        Principal Report
-    </h1>
+<h1 id="title">
+Principal Report
+</h1>
 
-    <div class="toolbar">
+<div class="toolbar">
 
-        <button
-            id="attendancePdfButton"
-            class="pdfButton"
-            onclick="downloadAttendancePDF()"
-            style="display:none;">
-            📄 Teacher Attendance PDF
-        </button>
+<button
+id="attendancePdfButton"
+class="pdfButton"
+onclick="downloadAttendancePDF()"
+style="display:none;">
+📄 Teacher Attendance PDF
+</button>
 
-        <button
-            id="monthlyPdfButton"
-            class="pdfButton"
-            onclick="downloadMonthlyPDF()"
-            style="display:none;">
-            📄 Class Monthly Report PDF
-        </button>
+<button
+id="monthlyPdfButton"
+class="pdfButton"
+onclick="downloadMonthlyPDF()"
+style="display:none;">
+📄 Class Monthly Report PDF
+</button>
 
-        <button
-            onclick="loadReport()">
-            🔄 Refresh
-        </button>
+<button onclick="loadReport()">
+🔄 Refresh
+</button>
 
-    </div>
+</div>
 
-    <div id="report">
+<div id="report">
 
-        <div class="loading">
-            Loading report...
-        </div>
+<div class="loading">
+Loading report...
+</div>
 
-    </div>
+</div>
 
 </div>
 
@@ -215,226 +169,219 @@ th{
 <script type="module">
 
 import {
-    initializeApp
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+initializeApp
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-    getFirestore,
-    collection,
-    getDocs,
-    query,
-    orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+getFirestore,
+collection,
+getDocs,
+query,
+orderBy
+}
+from
+"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 
 const firebaseConfig = {
 
-    apiKey:
-    "AIzaSyDhuLbuLGncuLBuLGncuCKvUtgjsyBdhyiL17glBOk",
+apiKey:
+"AIzaSyDhuLbuLGncuLBuLGncuCKvUtgjsyBdhyiL17glBOk",
 
-    authDomain:
-    "teachers-attendance-report.firebaseapp.com",
+authDomain:
+"teachers-attendance-report.firebaseapp.com",
 
-    projectId:
-    "teachers-attendance-report",
+projectId:
+"teachers-attendance-report",
 
-    storageBucket:
-    "teachers-attendance-report.firebasestorage.app",
+storageBucket:
+"teachers-attendance-report.firebasestorage.app",
 
-    messagingSenderId:
-    "1042949667860",
+messagingSenderId:
+"1042949667860",
 
-    appId:
-    "1:1042949667860:web:e4a255c0c2ff7c102afb01",
+appId:
+"1:1042949667860:web:e4a255c0c2ff7c102afb01",
 
-    measurementId:
-    "G-V63SGCHQYZ"
+measurementId:
+"G-V63SGCHQYZ"
 
 };
 
 
 const app =
-    initializeApp(firebaseConfig);
+initializeApp(firebaseConfig);
 
 const db =
-    getFirestore(app);
+getFirestore(app);
 
-
-/* =========================
-   GLOBAL DATA
-========================= */
 
 let attendanceData = [];
 
 let monthlyData = [];
 
 
-/* =========================
-   SAFE TEXT
-========================= */
-
 function safe(value){
 
-    return String(value ?? "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+return String(value ?? "")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
 
 }
 
-
-/* =========================
-   SUBJECT
-========================= */
 
 function getSubject(report,key){
 
-    if(
-        report.subjects &&
-        report.subjects[key]
-    ){
+if(
+report.subjects &&
+report.subjects[key]
+){
 
-        return report.subjects[key];
+return report.subjects[key];
 
-    }
+}
 
-    return {};
+return {};
 
 }
 
 
 /* =========================
-   ATTENDANCE
+   TEACHER ATTENDANCE
 ========================= */
 
 async function loadAttendance(){
 
-    const report =
-        document.getElementById("report");
+const report =
+document.getElementById("report");
 
-    report.innerHTML =
-        "<div class='loading'>Loading Teacher Attendance...</div>";
-
-    try{
-
-        const q =
-            query(
-                collection(db,"teacherAttendance"),
-                orderBy("createdAt","desc")
-            );
-
-        const snapshot =
-            await getDocs(q);
+report.innerHTML =
+"<div class='loading'>Loading Teacher Attendance...</div>";
 
 
-        attendanceData = [];
+try{
+
+const q =
+query(
+collection(db,"teacherAttendance"),
+orderBy("createdAt","desc")
+);
+
+const snapshot =
+await getDocs(q);
 
 
-        let html = "";
-
-        html +=
-            "<h2>Teacher Attendance</h2>";
-
-        html += `
-        <table id="attendanceTable">
-
-        <tr>
-            <th>Teacher</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Time</th>
-        </tr>
-        `;
+attendanceData = [];
 
 
-        if(snapshot.empty){
+let html = `
 
-            html += `
-            <tr>
-                <td colspan="4">
-                    No attendance records found.
-                </td>
-            </tr>
-            `;
+<h2>Teacher Attendance</h2>
 
-        }else{
+<table>
 
-            snapshot.forEach(doc => {
+<tr>
 
-                const data =
-                    doc.data();
+<th>Teacher</th>
+<th>Status</th>
+<th>Date</th>
+<th>Time</th>
 
-                attendanceData.push(data);
+</tr>
+
+`;
 
 
-                html += `
-                <tr>
+if(snapshot.empty){
 
-                    <td>
-                        ${safe(data.teacher || data.name)}
-                    </td>
+html += `
 
-                    <td>
-                        ${safe(data.status)}
-                    </td>
+<tr>
 
-                    <td>
-                        ${safe(data.date)}
-                    </td>
+<td colspan="4">
+No attendance records found.
+</td>
 
-                    <td>
-                        ${safe(data.time)}
-                    </td>
+</tr>
 
-                </tr>
-                `;
+`;
 
-            });
+}else{
 
-        }
+snapshot.forEach(doc => {
+
+const data =
+doc.data();
+
+attendanceData.push(data);
 
 
-        html += "</table>";
+html += `
+
+<tr>
+
+<td>
+${safe(data.teacher || data.name)}
+</td>
+
+<td>
+${safe(data.status)}
+</td>
+
+<td>
+${safe(data.date)}
+</td>
+
+<td>
+${safe(data.time)}
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
 
 
-        report.innerHTML = html;
+html += "</table>";
+
+report.innerHTML = html;
 
 
-        document
-        .getElementById("attendancePdfButton")
-        .style.display = "inline-block";
+document
+.getElementById("attendancePdfButton")
+.style.display = "block";
 
 
-        document
-        .getElementById("monthlyPdfButton")
-        .style.display = "none";
+document
+.getElementById("monthlyPdfButton")
+.style.display = "none";
 
 
-    }catch(error){
+}catch(error){
 
-        console.error(error);
+console.error(error);
 
-        report.innerHTML = `
+report.innerHTML = `
 
-        <div class="error">
+<h2>Teacher Attendance</h2>
 
-            <h2>Teacher Attendance Report</h2>
+<p style="color:red;text-align:center;">
 
-            <p>
-                Error loading attendance report.
-            </p>
+${safe(error.message)}
 
-            <p>
-                ${safe(error.message)}
-            </p>
+</p>
 
-        </div>
+`;
 
-        `;
-
-    }
+}
 
 }
 
@@ -445,205 +392,215 @@ async function loadAttendance(){
 
 async function loadMonthly(){
 
-    const report =
-        document.getElementById("report");
+const report =
+document.getElementById("report");
 
-    report.innerHTML =
-        "<div class='loading'>Loading Class Monthly Reports...</div>";
+report.innerHTML =
+"<div class='loading'>Loading Class Monthly Reports...</div>";
 
 
-    try{
+try{
 
-        const q =
-            query(
-                collection(db,"classMonthlyReports"),
-                orderBy("submittedAt","desc")
-            );
+const q =
+query(
+collection(db,"classMonthlyReports"),
+orderBy("submittedAt","desc")
+);
 
+const snapshot =
+await getDocs(q);
 
-        const snapshot =
-            await getDocs(q);
 
+monthlyData = [];
 
-        monthlyData = [];
 
+let html = `
 
-        let html = "";
+<h2>Class Monthly Reports</h2>
 
-        html +=
-            "<h2>Class Monthly Reports</h2>";
+`;
 
 
-        if(snapshot.empty){
+if(snapshot.empty){
 
-            html += `
-            <p style="text-align:center;">
-                No monthly reports found.
-            </p>
-            `;
+html += `
 
-        }else{
+<p style="text-align:center;">
+No monthly reports found.
+</p>
 
-            snapshot.forEach(doc => {
+`;
 
-                const data =
-                    doc.data();
+}else{
 
-                monthlyData.push(data);
+snapshot.forEach(doc => {
 
+const data =
+doc.data();
 
-                html += `
+monthlyData.push(data);
 
-                <div
-                    style="margin-top:30px;">
 
-                    <h3>
+html += `
 
-                        Class:
-                        ${safe(data.className)}
+<div style="margin-top:30px;">
 
-                        &nbsp;&nbsp;
+<h3>
 
-                        Month:
-                        ${safe(data.month)}
+Class:
+${safe(data.className)}
 
-                    </h3>
+&nbsp;&nbsp;
 
+Month:
+${safe(data.month)}
 
-                    <table>
+</h3>
 
-                    <tr>
+<table>
 
-                        <th>Subject</th>
+<tr>
 
-                        <th>Total</th>
+<th>Subject</th>
+<th>Total</th>
+<th>Read</th>
+<th>Write</th>
+<th>Checked</th>
+<th>Unchecked</th>
 
-                        <th>Read</th>
+</tr>
 
-                        <th>Write</th>
+`;
 
-                        <th>Checked</th>
 
-                        <th>Unchecked</th>
+const subjects = [
 
-                    </tr>
+"English",
+"Math",
+"Sindhi",
+"Islamiat",
+"S. Studies",
+"G. Science",
+"Urdu"
 
-                `;
+];
 
 
-                const subjects = [
+subjects.forEach(subject => {
 
-                    "English",
-                    "Math",
-                    "Sindhi",
-                    "Islamiat",
-                    "S. Studies",
-                    "G. Science",
-                    "Urdu"
+const s =
+getSubject(data,subject);
 
-                ];
 
+html += `
 
-                subjects.forEach(subject => {
+<tr>
 
-                    const s =
-                        getSubject(
-                            data,
-                            subject
-                        );
+<td>${safe(subject)}</td>
 
+<td>${safe(s.total || "-")}</td>
 
-                    html += `
+<td>${safe(s.read || "-")}</td>
 
-                    <tr>
+<td>${safe(s.write || "-")}</td>
 
-                        <td>
-                            ${safe(subject)}
-                        </td>
+<td>${safe(s.checked || "-")}</td>
 
-                        <td>
-                            ${safe(s.total || "-")}
-                        </td>
+<td>${safe(s.unchecked || "-")}</td>
 
-                        <td>
-                            ${safe(s.read || "-")}
-                        </td>
+</tr>
 
-                        <td>
-                            ${safe(s.write || "-")}
-                        </td>
+`;
 
-                        <td>
-                            ${safe(s.checked || "-")}
-                        </td>
+});
 
-                        <td>
-                            ${safe(s.unchecked || "-")}
-                        </td>
 
-                    </tr>
+html += `
 
-                    `;
+</table>
 
-                });
+<p style="text-align:right;">
 
+Submitted:
+${safe(data.submittedAt || "-")}
 
-                html += `
+</p>
 
-                    </table>
+</div>
 
-                    <p style="text-align:right;">
+`;
 
-                        Submitted:
-                        ${safe(data.submittedAt || "-")}
+});
 
-                    </p>
+}
 
-                </div>
 
-                `;
+report.innerHTML = html;
 
-            });
 
-        }
+document
+.getElementById("monthlyPdfButton")
+.style.display = "block";
 
 
-        report.innerHTML = html;
+document
+.getElementById("attendancePdfButton")
+.style.display = "none";
 
 
-        document
-        .getElementById("monthlyPdfButton")
-        .style.display = "inline-block";
+}catch(error){
 
+console.error(error);
 
-        document
-        .getElementById("attendancePdfButton")
-        .style.display = "none";
+report.innerHTML = `
 
+<h2>Class Monthly Report</h2>
 
-    }catch(error){
+<p style="color:red;text-align:center;">
 
-        console.error(error);
+${safe(error.message)}
 
-        report.innerHTML = `
+</p>
 
-        <div class="error">
+`;
 
-            <h2>Class Monthly Report</h2>
+}
 
-            <p>
-                Error loading monthly report.
-            </p>
+}
 
-            <p>
-                ${safe(error.message)}
-            </p>
 
-        </div>
+/* =========================
+   OPEN PDF IN NEW PAGE
+========================= */
 
-        `;
+function openPDF(doc){
 
-    }
+const blob =
+doc.output("blob");
+
+const url =
+URL.createObjectURL(blob);
+
+
+/*
+   Open PDF directly.
+   Do NOT use doc.save()
+*/
+
+const newWindow =
+window.open(url,"_blank");
+
+
+/*
+   If WebView blocks popup,
+   replace current page with PDF.
+*/
+
+if(!newWindow){
+
+window.location.href = url;
+
+}
 
 }
 
@@ -655,142 +612,115 @@ async function loadMonthly(){
 window.downloadAttendancePDF =
 function(){
 
-    try{
+if(!attendanceData.length){
 
-        if(!attendanceData.length){
+alert(
+"No Teacher Attendance records found."
+);
 
-            alert(
-                "No Teacher Attendance records available."
-            );
+return;
 
-            return;
-
-        }
+}
 
 
-        const {
-            jsPDF
-        } = window.jspdf;
+try{
+
+const {
+jsPDF
+} = window.jspdf;
 
 
-        const doc =
-            new jsPDF("p","mm","a4");
+const doc =
+new jsPDF("p","mm","a4");
 
 
-        doc.setFontSize(16);
+doc.setFontSize(16);
 
-        doc.text(
-            "Moon Star Public High School Khanwahan",
-            105,
-            15,
-            {
-                align:"center"
-            }
-        );
-
-
-        doc.setFontSize(13);
-
-        doc.text(
-            "Teacher Attendance Report",
-            105,
-            24,
-            {
-                align:"center"
-            }
-        );
+doc.text(
+"Moon Star Public High School Khanwahan",
+105,
+15,
+{
+align:"center"
+}
+);
 
 
-        const rows =
-            attendanceData.map(data => [
+doc.setFontSize(13);
 
-                data.teacher ||
-                data.name ||
-                "",
-
-                data.status ||
-                "",
-
-                data.date ||
-                "",
-
-                data.time ||
-                ""
-
-            ]);
+doc.text(
+"Teacher Attendance Report",
+105,
+24,
+{
+align:"center"
+}
+);
 
 
-        doc.autoTable({
+const rows =
+attendanceData.map(data => [
 
-            startY:32,
+data.teacher ||
+data.name ||
+"",
 
-            head:[
-                [
-                    "Teacher",
-                    "Status",
-                    "Date",
-                    "Time"
-                ]
-            ],
+data.status ||
+"",
 
-            body:rows,
+data.date ||
+"",
 
-            theme:"grid",
+data.time ||
+""
 
-            styles:{
-                fontSize:10,
-                halign:"center"
-            },
-
-            headStyles:{
-                fontStyle:"bold"
-            }
-
-        });
+]);
 
 
-        const fileName =
-            "Teacher_Attendance_Report.pdf";
+doc.autoTable({
+
+startY:32,
+
+head:[
+
+[
+"Teacher",
+"Status",
+"Date",
+"Time"
+]
+
+],
+
+body:rows,
+
+theme:"grid",
+
+styles:{
+fontSize:10,
+halign:"center"
+},
+
+headStyles:{
+fontStyle:"bold"
+}
+
+});
 
 
-        /* Try normal download */
-
-        doc.save(fileName);
+openPDF(doc);
 
 
-        /* Mobile fallback */
+}catch(error){
 
-        setTimeout(() => {
+console.error(error);
 
-            try{
+alert(
+"PDF error: " +
+error.message
+);
 
-                const pdfUrl =
-                    doc.output("bloburl");
-
-                window.open(
-                    pdfUrl,
-                    "_blank"
-                );
-
-            }catch(e){
-
-                console.log(e);
-
-            }
-
-        },800);
-
-
-    }catch(error){
-
-        console.error(error);
-
-        alert(
-            "PDF banane mein error: " +
-            error.message
-        );
-
-    }
+}
 
 };
 
@@ -802,223 +732,182 @@ function(){
 window.downloadMonthlyPDF =
 function(){
 
-    try{
+if(!monthlyData.length){
 
-        if(!monthlyData.length){
+alert(
+"No Class Monthly Reports found."
+);
 
-            alert(
-                "No Class Monthly Reports available."
-            );
+return;
 
-            return;
+}
 
-        }
 
+try{
 
-        const {
-            jsPDF
-        } = window.jspdf;
+const {
+jsPDF
+} = window.jspdf;
 
 
-        const doc =
-            new jsPDF("p","mm","a4");
+const doc =
+new jsPDF("p","mm","a4");
 
 
-        doc.setFontSize(16);
+doc.setFontSize(16);
 
-        doc.text(
-            "Moon Star Public High School Khanwahan",
-            105,
-            15,
-            {
-                align:"center"
-            }
-        );
+doc.text(
+"Moon Star Public High School Khanwahan",
+105,
+15,
+{
+align:"center"
+}
+);
 
 
-        doc.setFontSize(13);
+doc.setFontSize(13);
 
-        doc.text(
-            "Class Monthly Reports",
-            105,
-            24,
-            {
-                align:"center"
-            }
-        );
+doc.text(
+"Class Monthly Reports",
+105,
+24,
+{
+align:"center"
+}
+);
 
 
-        let y = 32;
+monthlyData.forEach(
+(data,index) => {
 
+if(index > 0){
 
-        monthlyData.forEach(
-            (data,index) => {
+doc.addPage();
 
+}
 
-            if(index > 0){
 
-                doc.addPage();
+doc.setFontSize(12);
 
-                y = 20;
+doc.text(
 
-            }
+"Class: " +
+(data.className || "-") +
 
+"   Month: " +
+(data.month || "-"),
 
-            doc.setFontSize(12);
+105,
+32,
 
-            doc.text(
+{
+align:"center"
+}
 
-                "Class: " +
-                (data.className || "-") +
-                "   Month: " +
-                (data.month || "-"),
+);
 
-                105,
-                y,
 
-                {
-                    align:"center"
-                }
+const subjects = [
 
-            );
+"English",
+"Math",
+"Sindhi",
+"Islamiat",
+"S. Studies",
+"G. Science",
+"Urdu"
 
+];
 
-            const subjects = [
 
-                "English",
-                "Math",
-                "Sindhi",
-                "Islamiat",
-                "S. Studies",
-                "G. Science",
-                "Urdu"
+const rows =
+subjects.map(subject => {
 
-            ];
+const s =
+getSubject(data,subject);
 
+return [
 
-            const rows =
-                subjects.map(subject => {
+subject,
 
-                    const s =
-                        getSubject(
-                            data,
-                            subject
-                        );
+s.total || "-",
 
+s.read || "-",
 
-                    return [
+s.write || "-",
 
-                        subject,
+s.checked || "-",
 
-                        s.total || "-",
+s.unchecked || "-"
 
-                        s.read || "-",
+];
 
-                        s.write || "-",
+});
 
-                        s.checked || "-",
 
-                        s.unchecked || "-"
+doc.autoTable({
 
-                    ];
+startY:40,
 
-                });
+head:[
 
+[
+"Subject",
+"Total",
+"Read",
+"Write",
+"Checked",
+"Unchecked"
+]
 
-            doc.autoTable({
+],
 
-                startY:y + 7,
+body:rows,
 
-                head:[
+theme:"grid",
 
-                    [
-                        "Subject",
-                        "Total",
-                        "Read",
-                        "Write",
-                        "Checked",
-                        "Unchecked"
-                    ]
+styles:{
+fontSize:9,
+halign:"center"
+},
 
-                ],
+headStyles:{
+fontStyle:"bold"
+}
 
-                body:rows,
+});
 
-                theme:"grid",
 
-                styles:{
-                    fontSize:9,
-                    halign:"center"
-                },
+doc.setFontSize(9);
 
-                headStyles:{
-                    fontStyle:"bold"
-                }
+doc.text(
 
-            });
+"Submitted: " +
+(data.submittedAt || "-"),
 
+14,
 
-            y =
-                doc.lastAutoTable.finalY + 10;
+doc.lastAutoTable.finalY + 10
 
+);
 
-            doc.setFontSize(9);
+});
 
-            doc.text(
 
-                "Submitted: " +
-                (data.submittedAt || "-"),
+openPDF(doc);
 
-                14,
-                y
 
-            );
+}catch(error){
 
-        });
+console.error(error);
 
+alert(
+"PDF error: " +
+error.message
+);
 
-        const fileName =
-            "Class_Monthly_Report.pdf";
-
-
-        /* Try normal download */
-
-        doc.save(fileName);
-
-
-        /* Mobile fallback */
-
-        setTimeout(() => {
-
-            try{
-
-                const pdfUrl =
-                    doc.output("bloburl");
-
-                window.open(
-                    pdfUrl,
-                    "_blank"
-                );
-
-            }catch(e){
-
-                console.log(e);
-
-            }
-
-        },800);
-
-
-    }catch(error){
-
-        console.error(error);
-
-        alert(
-            "PDF banane mein error: " +
-            error.message
-        );
-
-    }
+}
 
 };
 
@@ -1029,96 +918,94 @@ function(){
 
 async function loadReport(){
 
-    const params =
-        new URLSearchParams(
-            window.location.search
-        );
+const params =
+new URLSearchParams(
+window.location.search
+);
+
+const type =
+params.get("type");
 
 
-    const type =
-        params.get("type");
+if(type === "attendance"){
+
+document
+.getElementById("title")
+.textContent =
+"Teacher Attendance";
 
 
-    if(type === "attendance"){
+await loadAttendance();
 
-        document
-        .getElementById("title")
-        .textContent =
-        "Teacher Attendance";
+}
 
+else if(type === "monthly"){
 
-        await loadAttendance();
-
-    }
-
-    else if(type === "monthly"){
-
-        document
-        .getElementById("title")
-        .textContent =
-        "Class Monthly Report";
+document
+.getElementById("title")
+.textContent =
+"Class Monthly Report";
 
 
-        await loadMonthly();
+await loadMonthly();
 
-    }
+}
 
-    else{
+else{
 
-        document
-        .getElementById("title")
-        .textContent =
-        "Principal Report";
-
-
-        document
-        .getElementById("report")
-        .innerHTML = `
-
-        <div style="text-align:center;">
-
-            <h2>Select Report</h2>
-
-            <button
-                onclick="
-                location.href='?type=attendance'
-                ">
-
-                👨‍🏫 Teacher Attendance
-
-            </button>
+document
+.getElementById("title")
+.textContent =
+"Principal Report";
 
 
-            <button
-                onclick="
-                location.href='?type=monthly'
-                ">
+document
+.getElementById("report")
+.innerHTML = `
 
-                📊 Class Monthly Report
+<div style="text-align:center;">
 
-            </button>
+<h2>Select Report</h2>
 
-        </div>
+<button
+onclick="
+location.href='?type=attendance'
+">
 
-        `;
+👨‍🏫 Teacher Attendance
+
+</button>
+
+<button
+onclick="
+location.href='?type=monthly'
+">
+
+📊 Class Monthly Report
+
+</button>
+
+</div>
+
+`;
 
 
-        document
-        .getElementById("attendancePdfButton")
-        .style.display = "none";
+document
+.getElementById("attendancePdfButton")
+.style.display = "none";
 
 
-        document
-        .getElementById("monthlyPdfButton")
-        .style.display = "none";
+document
+.getElementById("monthlyPdfButton")
+.style.display = "none";
 
-    }
+}
 
 }
 
 
 window.loadReport =
-    loadReport;
+loadReport;
 
 
 loadReport();
