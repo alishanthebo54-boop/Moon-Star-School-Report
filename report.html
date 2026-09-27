@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Moon Star School Report</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:20px;
+    font-family:Arial,sans-serif;
+    background:#f2f6fb;
+    color:#111;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:12px;
+}
+
+h1,h2,h3{
+    text-align:center;
+}
+
+.school{
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+}
+
+button{
+    padding:12px 18px;
+    margin:6px;
+    border:0;
+    border-radius:7px;
+    background:#1769aa;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.toolbar{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+th,td{
+    border:1px solid #555;
+    padding:9px;
+    text-align:center;
+}
+
+th{
+    background:#e8eef5;
+}
+
+.loading{
+    text-align:center;
+    padding:30px;
+}
+
+@media print{
+
+    body{
+        background:white;
+        padding:0;
+    }
+
+    .container{
+        max-width:none;
+        padding:10px;
+        border-radius:0;
+    }
+
+    .toolbar{
+        display:none;
+    }
+
+    button{
+        display:none;
+    }
+
+    table{
+        page-break-inside:auto;
+    }
+
+    tr{
+        page-break-inside:avoid;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="school">
+Moon Star Public High School Khanwahan
+</div>
+
+<h1 id="title">Principal Report</h1>
+
+<div class="toolbar">
+    <button onclick="window.print()">🖨️ Print / Save PDF</button>
+    <button onclick="loadReport()">🔄 Refresh</button>
+</div>
+
+<div id="report">
+    <div class="loading">
+        Loading report...
+    </div>
+</div>
+
+</div>
+
+<script type="module">
+
+import {
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+    getFirestore,
+    collection,
+    getDocs,
+    query,
+    orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyDhuLbuLGncuLBuLGncuCKvUtgjsyBdhyiL17glBOk",
+
+    authDomain: "teachers-attendance-report.firebaseapp.com",
+
+    projectId: "teachers-attendance-report",
+
+    storageBucket: "teachers-attendance-report.firebasestorage.app",
+
+    messagingSenderId: "1042949667860",
+
+    appId: "1:1042949667860:web:e4a255c0c2ff7c102afb01",
+
+    measurementId: "G-V63SGCHQYZ"
+};
+
+
+const app = initializeApp(firebaseConfig);
+
+const db = getFirestore(app);
+
+
+function safe(value){
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+
+function getSubject(report,key){
+
+    if(
+        report.subjects &&
+        report.subjects[key]
+    ){
+        return report.subjects[key];
+    }
+
+    return {};
+}
+
+
+async function loadAttendance(){
+
+    const report = document.getElementById("report");
+
+    report.innerHTML =
+        "<div class='loading'>Loading Teacher Attendance...</div>";
+
+    try{
+
+        const q = query(
+            collection(db,"teacherAttendance"),
+            orderBy("createdAt","desc")
+        );
+
+        const snapshot = await getDocs(q);
+
+        let html = "";
+
+        html += "<h2>Teacher Attendance Report</h2>";
+
+        html += "<table>";
+
+        html += `
+        <tr>
+            <th>Teacher</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Time</th>
+        </tr>
+        `;
+
+        if(snapshot.empty){
+
+            html += `
+            <tr>
+                <td colspan="4">No attendance records found.</td>
+            </tr>
+            `;
+
+        }else{
+
+            snapshot.forEach(doc => {
+
+                const data = doc.data();
+
+                html += `
+                <tr>
+                    <td>${safe(data.teacher)}</td>
+                    <td>${safe(data.status)}</td>
+                    <td>${safe(data.date)}</td>
+                    <td>${safe(data.time)}</td>
+                </tr>
+                `;
+
+            });
+
+        }
+
+        html += "</table>";
+
+        report.innerHTML = html;
+
+    }catch(error){
+
+        console.error(error);
+
+        report.innerHTML = `
+        <h2>Teacher Attendance Report</h2>
+        <p>
+        Error loading attendance report.
+        </p>
+        <p>
+        ${safe(error.message)}
+        </p>
+        `;
+
+    }
+
+}
+
+
+async function loadMonthly(){
+
+    const report = document.getElementById("report");
+
+    report.innerHTML =
+        "<div class='loading'>Loading Class Monthly Reports...</div>";
+
+    try{
+
+        const q = query(
+            collection(db,"classMonthlyReports"),
+            orderBy("submittedAt","desc")
+        );
+
+        const snapshot = await getDocs(q);
+
+        let html = "";
+
+        html += "<h2>Class Monthly Report</h2>";
+
+        if(snapshot.empty){
+
+            html += `
+            <p style="text-align:center;">
+            No monthly reports found.
+            </p>
+            `;
+
+        }else{
+
+            snapshot.forEach(doc => {
+
+                const data = doc.data();
+
+                html += `
+                <div style="margin-top:30px;">
+                
+                <h3>
+                Class: ${safe(data.className)}
+                &nbsp;&nbsp;
+                Month: ${safe(data.month)}
+                </h3>
+
+                <table>
+
+                <tr>
+                    <th>Subject</th>
+                    <th>Total</th>
+                    <th>Read</th>
+                    <th>Write</th>
+                    <th>Checked</th>
+                    <th>Unchecked</th>
+                </tr>
+                `;
+
+
+                const subjects = [
+
+                    "English",
+                    "Math",
+                    "Sindhi",
+                    "Islamiat",
+                    "S. Studies",
+                    "G. Science",
+                    "Urdu"
+
+                ];
+
+
+                subjects.forEach(subject => {
+
+                    const s =
+                        getSubject(data,subject);
+
+                    html += `
+                    <tr>
+
+                    <td>${safe(subject)}</td>
+
+                    <td>${safe(s.total || "-")}</td>
+
+                    <td>${safe(s.read || "-")}</td>
+
+                    <td>${safe(s.write || "-")}</td>
+
+                    <td>${safe(s.checked || "-")}</td>
+
+                    <td>${safe(s.unchecked || "-")}</td>
+
+                    </tr>
+                    `;
+
+                });
+
+
+                html += `
+                </table>
+
+                <p style="text-align:right;">
+                Submitted:
+                ${safe(data.submittedAt || "-")}
+                </p>
+
+                </div>
+                `;
+
+            });
+
+        }
+
+        report.innerHTML = html;
+
+    }catch(error){
+
+        console.error(error);
+
+        report.innerHTML = `
+        <h2>Class Monthly Report</h2>
+
+        <p>
+        Error loading monthly report.
+        </p>
+
+        <p>
+        ${safe(error.message)}
+        </p>
+        `;
+
+    }
+
+}
+
+
+async function loadReport(){
+
+    const params =
+        new URLSearchParams(window.location.search);
+
+    const type =
+        params.get("type");
+
+
+    if(type === "attendance"){
+
+        document.getElementById("title").textContent =
+            "Teacher Attendance";
+
+        await loadAttendance();
+
+    }
+
+    else if(type === "monthly"){
+
+        document.getElementById("title").textContent =
+            "Class Monthly Report";
+
+        await loadMonthly();
+
+    }
+
+    else{
+
+        document.getElementById("title").textContent =
+            "Principal Report";
+
+        document.getElementById("report").innerHTML = `
+
+        <div style="text-align:center;">
+
+            <h2>Select Report</h2>
+
+            <button onclick="
+            location.href='?type=attendance'
+            ">
+            Teacher Attendance
+            </button>
+
+            <button onclick="
+            location.href='?type=monthly'
+            ">
+            Class Monthly Report
+            </button>
+
+        </div>
+
+        `;
+
+    }
+
+}
+
+
+window.loadReport = loadReport;
+
+loadReport();
+
+</script>
+
+</body>
+</html>
