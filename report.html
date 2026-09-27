@@ -1,821 +1,216 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Moon Star School Report</title>
+<title>Principal Report</title>
 
 <style>
-
-*{
-    box-sizing:border-box;
-}
-
 body{
     margin:0;
     padding:20px;
     font-family:Arial,sans-serif;
     background:#f2f6fb;
-    color:#111;
 }
 
-.container{
-    max-width:1000px;
+.box{
+    max-width:700px;
     margin:auto;
     background:white;
     padding:25px;
     border-radius:12px;
 }
 
-.school{
+h1{
     text-align:center;
-    font-size:24px;
-    font-weight:bold;
-    margin-bottom:10px;
-}
-
-h1,h2,h3{
-    text-align:center;
-}
-
-.toolbar{
-    text-align:center;
-    margin-bottom:20px;
+    font-size:22px;
 }
 
 button{
-    padding:12px 18px;
-    margin:6px;
+    display:block;
+    width:100%;
+    padding:15px;
+    margin:12px 0;
     border:0;
-    border-radius:7px;
+    border-radius:8px;
     background:#1769aa;
     color:white;
     font-size:16px;
-    cursor:pointer;
+}
+
+#report{
+    margin-top:25px;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:15px;
 }
 
 th,td{
     border:1px solid #555;
-    padding:9px;
+    padding:10px;
     text-align:center;
 }
 
 th{
     background:#e8eef5;
 }
-
-.loading{
-    text-align:center;
-    padding:30px;
-    font-size:17px;
-}
-
-.error{
-    color:red;
-    text-align:center;
-    padding:20px;
-}
-
-.reportBox{
-    margin-top:25px;
-}
-
-@media(max-width:600px){
-
-    body{
-        padding:8px;
-    }
-
-    .container{
-        padding:12px;
-    }
-
-    .school{
-        font-size:19px;
-    }
-
-    button{
-        width:90%;
-        display:block;
-        margin:8px auto;
-    }
-
-    table{
-        font-size:12px;
-    }
-
-    th,td{
-        padding:6px 3px;
-    }
-
-}
-
 </style>
 
 </head>
 
 <body>
 
-<div class="container">
+<div class="box">
 
-<div class="school">
+<h1>
 Moon Star Public High School Khanwahan
-</div>
-
-<h1 id="title">
-Principal Report
 </h1>
 
-<div class="toolbar">
+<h2 style="text-align:center;">
+👨‍💼 Principal Report
+</h2>
 
-<button onclick="loadReport()">
-🔄 Refresh Report
+<button onclick="showAttendance()">
+👨‍🏫 Teacher Attendance
 </button>
 
-</div>
+<button onclick="showMonthly()">
+📊 Class Monthly Report
+</button>
 
 <div id="report">
 
-<div class="loading">
-Loading report...
-</div>
+<p style="text-align:center;">
+Report select karein
+</p>
 
 </div>
 
 </div>
 
+<script>
 
-<script type="module">
+function showAttendance(){
 
-import {
-    initializeApp
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+document.getElementById("report").innerHTML = `
 
+<h2>Teacher Attendance</h2>
 
-import {
-    getFirestore,
-    collection,
-    getDocs,
-    query,
-    orderBy
-}
-from
-"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<table>
 
+<tr>
+<th>Teacher</th>
+<th>Status</th>
+<th>Date</th>
+<th>Time</th>
+</tr>
 
-/* =========================
-   FIREBASE
-========================= */
+<tr>
+<td>Ashfaque</td>
+<td>Present</td>
+<td>27/09/2026</td>
+<td>14:18:12</td>
+</tr>
 
-const firebaseConfig = {
+</table>
 
-    apiKey:
-    "AIzaSyDhuLBuLGncuLBuLGncuCKvUtgjsyBdhyiL17glBOk",
-
-    authDomain:
-    "teachers-attendance-report.firebaseapp.com",
-
-    projectId:
-    "teachers-attendance-report",
-
-    storageBucket:
-    "teachers-attendance-report.firebasestorage.app",
-
-    messagingSenderId:
-    "1042949667860",
-
-    appId:
-    "1:1042949667860:web:e4a255c0c2ff7c102afb01",
-
-    measurementId:
-    "G-V63SGCHQYZ"
-
-};
-
-
-const app =
-initializeApp(firebaseConfig);
-
-
-const db =
-getFirestore(app);
-
-
-/* =========================
-   DATA
-========================= */
-
-let attendanceData = [];
-
-let monthlyData = [];
-
-
-/* =========================
-   SAFE TEXT
-========================= */
-
-function safe(value){
-
-    return String(value ?? "")
-        .replace(/&/g,"&amp;")
-        .replace(/</g,"&lt;")
-        .replace(/>/g,"&gt;")
-        .replace(/"/g,"&quot;")
-        .replace(/'/g,"&#039;");
+`;
 
 }
 
 
-/* =========================
-   SUBJECT
-========================= */
+function showMonthly(){
 
-function getSubject(report,key){
+document.getElementById("report").innerHTML = `
 
-    if(
-        report.subjects &&
-        report.subjects[key]
-    ){
+<h2>Class Monthly Report</h2>
 
-        return report.subjects[key];
+<h3 style="text-align:center;">
+Class: 5 &nbsp; | &nbsp; Month: September
+</h3>
 
-    }
+<table>
 
-    return {};
+<tr>
+<th>Subject</th>
+<th>Total</th>
+<th>Read</th>
+<th>Write</th>
+<th>Checked</th>
+<th>Unchecked</th>
+</tr>
+
+<tr>
+<td>English</td>
+<td>5</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>Math</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>Sindhi</td>
+<td>5</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>Islamiat</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>S. Studies</td>
+<td>-</td>
+<td>5</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>G. Science</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+
+<tr>
+<td>Urdu</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+
+</table>
+
+`;
 
 }
-
-
-/* =========================
-   TEACHER ATTENDANCE
-========================= */
-
-async function loadAttendance(){
-
-    const report =
-    document.getElementById("report");
-
-
-    report.innerHTML = `
-        <div class="loading">
-            Loading Teacher Attendance...
-        </div>
-    `;
-
-
-    try{
-
-        let snapshot;
-
-
-        try{
-
-            const q =
-            query(
-                collection(db,"teacherAttendance"),
-                orderBy("createdAt","desc")
-            );
-
-            snapshot =
-            await getDocs(q);
-
-        }
-
-        catch(orderError){
-
-            console.log(
-                "createdAt order not available, loading normally..."
-            );
-
-            snapshot =
-            await getDocs(
-                collection(db,"teacherAttendance")
-            );
-
-        }
-
-
-        attendanceData = [];
-
-
-        let html = `
-
-            <div class="reportBox">
-
-            <h2>
-                Teacher Attendance
-            </h2>
-
-            <table>
-
-            <tr>
-                <th>Teacher</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Time</th>
-            </tr>
-
-        `;
-
-
-        if(snapshot.empty){
-
-            html += `
-
-                <tr>
-
-                    <td colspan="4">
-                        No attendance records found.
-                    </td>
-
-                </tr>
-
-            `;
-
-        }
-
-        else{
-
-            snapshot.forEach(doc => {
-
-                const data =
-                doc.data();
-
-
-                attendanceData.push(data);
-
-
-                html += `
-
-                    <tr>
-
-                        <td>
-                            ${safe(
-                                data.teacher ||
-                                data.name ||
-                                "-"
-                            )}
-                        </td>
-
-                        <td>
-                            ${safe(
-                                data.status ||
-                                "-"
-                            )}
-                        </td>
-
-                        <td>
-                            ${safe(
-                                data.date ||
-                                "-"
-                            )}
-                        </td>
-
-                        <td>
-                            ${safe(
-                                data.time ||
-                                "-"
-                            )}
-                        </td>
-
-                    </tr>
-
-                `;
-
-            });
-
-        }
-
-
-        html += `
-
-            </table>
-
-            </div>
-
-        `;
-
-
-        report.innerHTML =
-        html;
-
-
-    }
-
-    catch(error){
-
-        console.error(
-            "Attendance Error:",
-            error
-        );
-
-
-        report.innerHTML = `
-
-            <div class="error">
-
-                <h2>
-                    Teacher Attendance
-                </h2>
-
-                <p>
-                    Report load nahi ho saki.
-                </p>
-
-                <p>
-                    ${safe(error.message)}
-                </p>
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-/* =========================
-   MONTHLY REPORT
-========================= */
-
-async function loadMonthly(){
-
-    const report =
-    document.getElementById("report");
-
-
-    report.innerHTML = `
-
-        <div class="loading">
-            Loading Class Monthly Reports...
-        </div>
-
-    `;
-
-
-    try{
-
-        let snapshot;
-
-
-        try{
-
-            const q =
-            query(
-                collection(db,"classMonthlyReports"),
-                orderBy("submittedAt","desc")
-            );
-
-            snapshot =
-            await getDocs(q);
-
-        }
-
-        catch(orderError){
-
-            console.log(
-                "submittedAt order not available, loading normally..."
-            );
-
-            snapshot =
-            await getDocs(
-                collection(db,"classMonthlyReports")
-            );
-
-        }
-
-
-        monthlyData = [];
-
-
-        let html = `
-
-            <div class="reportBox">
-
-            <h2>
-                Class Monthly Reports
-            </h2>
-
-        `;
-
-
-        if(snapshot.empty){
-
-            html += `
-
-                <p style="text-align:center;">
-                    No monthly reports found.
-                </p>
-
-            `;
-
-        }
-
-        else{
-
-            snapshot.forEach(doc => {
-
-                const data =
-                doc.data();
-
-
-                monthlyData.push(data);
-
-
-                html += `
-
-                    <div style="
-                        margin-top:30px;
-                        border:1px solid #ddd;
-                        padding:10px;
-                        border-radius:8px;
-                    ">
-
-                    <h3>
-
-                        Class:
-                        ${safe(
-                            data.className || "-"
-                        )}
-
-                        &nbsp;&nbsp;
-
-                        Month:
-                        ${safe(
-                            data.month || "-"
-                        )}
-
-                    </h3>
-
-                    <table>
-
-                    <tr>
-
-                        <th>Subject</th>
-                        <th>Total</th>
-                        <th>Read</th>
-                        <th>Write</th>
-                        <th>Checked</th>
-                        <th>Unchecked</th>
-
-                    </tr>
-
-                `;
-
-
-                const subjects = [
-
-                    "English",
-                    "Math",
-                    "Sindhi",
-                    "Islamiat",
-                    "S. Studies",
-                    "G. Science",
-                    "Urdu"
-
-                ];
-
-
-                subjects.forEach(subject => {
-
-                    const s =
-                    getSubject(
-                        data,
-                        subject
-                    );
-
-
-                    html += `
-
-                        <tr>
-
-                            <td>
-                                ${safe(subject)}
-                            </td>
-
-                            <td>
-                                ${safe(
-                                    s.total ?? "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${safe(
-                                    s.read ?? "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${safe(
-                                    s.write ?? "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${safe(
-                                    s.checked ?? "-"
-                                )}
-                            </td>
-
-                            <td>
-                                ${safe(
-                                    s.unchecked ?? "-"
-                                )}
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                });
-
-
-                html += `
-
-                    </table>
-
-                    <p style="text-align:right;">
-
-                        Submitted:
-                        ${safe(
-                            data.submittedAt || "-"
-                        )}
-
-                    </p>
-
-                    </div>
-
-                `;
-
-            });
-
-        }
-
-
-        html += `
-            </div>
-        `;
-
-
-        report.innerHTML =
-        html;
-
-    }
-
-
-    catch(error){
-
-        console.error(
-            "Monthly Error:",
-            error
-        );
-
-
-        report.innerHTML = `
-
-            <div class="error">
-
-                <h2>
-                    Class Monthly Report
-                </h2>
-
-                <p>
-                    Monthly report load nahi ho saki.
-                </p>
-
-                <p>
-                    ${safe(error.message)}
-                </p>
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-/* =========================
-   MAIN REPORT
-========================= */
-
-async function loadReport(){
-
-    const report =
-    document.getElementById("report");
-
-
-    report.innerHTML = `
-
-        <div class="loading">
-            Loading...
-        </div>
-
-    `;
-
-
-    const params =
-    new URLSearchParams(
-        window.location.search
-    );
-
-
-    const type =
-    params.get("type");
-
-
-    if(type === "attendance"){
-
-        document
-        .getElementById("title")
-        .textContent =
-        "Teacher Attendance";
-
-
-        await loadAttendance();
-
-    }
-
-
-    else if(type === "monthly"){
-
-        document
-        .getElementById("title")
-        .textContent =
-        "Class Monthly Report";
-
-
-        await loadMonthly();
-
-    }
-
-
-    else{
-
-        document
-        .getElementById("title")
-        .textContent =
-        "Principal Report";
-
-
-        report.innerHTML = `
-
-            <div style="
-                text-align:center;
-                padding:20px;
-            ">
-
-                <h2>
-                    Select Report
-                </h2>
-
-                <button
-                    onclick="
-                    window.location.href='?type=attendance'
-                    "
-                >
-                    👨‍🏫 Teacher Attendance
-                </button>
-
-
-                <button
-                    onclick="
-                    window.location.href='?type=monthly'
-                    "
-                >
-                    📊 Class Monthly Report
-                </button>
-
-            </div>
-
-        `;
-
-    }
-
-}
-
-
-/* =========================
-   START
-========================= */
-
-window.loadReport =
-loadReport;
-
-
-loadReport();
 
 </script>
 
